@@ -47,9 +47,15 @@ func (s *CPUWatch) Run(events chan<- Event) {
 		load, _ := strconv.ParseFloat(clean(result), 64)
 
 		if load < s.threshold {
-			events <- Event{Source: s.source, Payload: fmt.Sprintf("%f below %f", load, s.threshold)}
+			events <- Event{
+				Source:  s.source,
+				Payload: fmt.Sprintf("%f below %f", load, s.threshold),
+			}
 		} else {
-			fmt.Println("She's gonna blow!!", load)
+			events <- Event{
+				Source:  s.source,
+				Payload: fmt.Sprintf("%f >above< %f!", load, s.threshold),
+			}
 		}
 
 		time.Sleep(time.Second * s.interval)
@@ -57,5 +63,4 @@ func (s *CPUWatch) Run(events chan<- Event) {
 }
 
 func (s *CPUWatch) Stop() {
-	s.link.Disconnect()
 }
