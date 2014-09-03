@@ -19,7 +19,7 @@ func main() {
 	data := make(chan string)
 	wg := sync.WaitGroup{}
 
-	for _, host := range(hosts) {
+	for _, host := range hosts {
 		go func(target string) {
 			wg.Add(1)
 
@@ -33,9 +33,9 @@ func main() {
 		}(host)
 	}
 
-	go func() { wg.Wait(); close(data); }()
+	go func() { wg.Wait(); close(data) }()
 
-	for result := range(data) {
+	for result := range data {
 		fmt.Println(result)
 	}
 }
