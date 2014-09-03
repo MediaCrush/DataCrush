@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/MediaCrush/DataCrush/link/ssh"
-	"sync"
+
+	"github.com/MediaCrush/DataCrush/agent"
+	"github.com/MediaCrush/DataCrush/link"
 )
 
 var hosts = []string{
@@ -16,26 +17,21 @@ var hosts = []string{
 }
 
 func main() {
-	data := make(chan string)
-	wg := sync.WaitGroup{}
+	data := make(chan agent.Event)
 
 	for _, host := range hosts {
 		go func(target string) {
-			wg.Add(1)
+			ssh := link.NewSSHLink()
+			ssh.Connect(target + ":22")
 
-			link := ssh.NewSSHLink()
-			link.Connect(target + ":22")
-			defer link.Disconnect()
-			data <- link.Run("uptime")
-			data <- link.Run("hostname")
+			watch, _ := agent.NewCPUWatchAgent(ssh, target, 0.7, 5)
+			defer watch.Stop()
 
-			wg.Done()
+			watch.Run(data)
 		}(host)
 	}
 
-	go func() { wg.Wait(); close(data) }()
-
 	for result := range data {
-		fmt.Println(result)
+		fmt.Println(result.Source, ":", result.Payload)
 	}
 }

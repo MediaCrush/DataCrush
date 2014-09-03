@@ -1,7 +1,9 @@
 package link
 
 type Link interface {
-	func Connect(host string) error
-	func Run(cmd string) (string, error)
-	func Disconnect()
+	Connect(host string) error
+	Run(cmd string) (string, error)
+	Disconnect()
+
+	Ready() bool
 }

@@ -1,10 +1,11 @@
-package ssh
+package link
 
 import (
 	"bytes"
-	"code.google.com/p/go.crypto/ssh"
 	"io/ioutil"
 	"os"
+
+	"code.google.com/p/go.crypto/ssh"
 )
 
 type SSHLink struct {
@@ -57,16 +58,23 @@ func (s *SSHLink) Connect(host string) (err error) {
 	return
 }
 
-func (s *SSHLink) Run(cmd string) string {
-	session, _ := s.client.NewSession()
+func (s *SSHLink) Run(cmd string) (string, error) {
+	session, err := s.client.NewSession()
+	if err != nil {
+		return "", err
+	}
 
 	var stdoutBuf bytes.Buffer
 	session.Stdout = &stdoutBuf
 	session.Run(cmd)
 
-	return stdoutBuf.String()
+	return stdoutBuf.String(), nil
 }
 
 func (s *SSHLink) Disconnect() {
 	s.client.Close()
+}
+
+func (s *SSHLink) Ready() bool {
+	return s.client != nil
 }
