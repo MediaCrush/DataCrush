@@ -2,7 +2,6 @@ package agent
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -46,17 +45,23 @@ func (s *CPUWatch) Run(events chan<- Event) {
 		result, _ := s.link.Run("cat /proc/loadavg | awk '{print $1}'")
 		load, _ := strconv.ParseFloat(clean(result), 64)
 
-		if load < s.threshold {
-			events <- Event{
-				Source:  s.source,
-				Payload: fmt.Sprintf("%f below %f", load, s.threshold),
-			}
-		} else {
-			events <- Event{
-				Source:  s.source,
-				Payload: fmt.Sprintf("%f >above< %f!", load, s.threshold),
-			}
+		ev := Event{
+			Agent:  "cpu",
+			Source: s.source,
+			Payload: CPUEvent{
+				Value:     load,
+				Timestamp: time.Now().Unix(),
+			},
 		}
+
+		events <- ev
+
+		//if load > s.threshold {
+		//	events <- Event{
+		//		Source:  s.source,
+		//		Payload: fmt.Sprintf("%f >above< %f!", load, s.threshold),
+		//	}
+		//}
 
 		time.Sleep(time.Second * s.interval)
 	}

@@ -1,13 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 
 	"github.com/MediaCrush/DataCrush/agent"
 	"github.com/MediaCrush/DataCrush/link"
-	"labix.org/v2/mgo/bson"
+	_ "labix.org/v2/mgo/bson"
 )
 
 var hosts = []string{
@@ -55,8 +56,11 @@ func main() {
 	}()
 
 	for result := range data {
-		bytes, _ := bson.Marshal(result)
 		fmt.Println(result)
+		bytes, err := json.Marshal(result)
+		if err != nil {
+			fmt.Println(err)
+		}
 		con.Write(bytes)
 	}
 }

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 
 	"github.com/MediaCrush/DataCrush/agent"
-	"labix.org/v2/mgo/bson"
 )
 
 func main() {
@@ -24,7 +24,10 @@ func main() {
 		}
 
 		evt := &agent.Event{}
-		bson.Unmarshal(buf, evt)
+		err = json.Unmarshal(buf[:bytes], evt)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		fmt.Println(bytes, evt)
 	}
